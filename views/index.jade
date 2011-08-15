@@ -1,0 +1,47 @@
+script(src='/socket.io/socket.io.js')
+script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js')
+script
+  var socket = io.connect('http://localhost:3000');
+  socket.on('connect', function() {
+    console.log('emitting web-start now');
+    socket.emit('web-start', { UDID: 'asdfaasfa42432asdf' });
+    socket.on('recieve-message', function(data) {
+      $("#history").append('<li> ' + data.sender + ': ' + data.message + '</li>')
+    });
+    socket.on('no-phone', function() {
+      // remove last item in list
+      $('#history li:last-child').remove();
+      // display alert
+      alert('no phone connected');
+    });
+    socket.on('wait-phone', function() {
+      // show waiting
+      $('#waiting').show();
+    });
+    socket.on('phone-arrive', function() {
+      // show waiting
+      $('#waiting').hide();
+    });
+  });
+  $(document).ready(function() {
+    $('#send-form').submit(function(e) {
+      socket.emit('send-message', { UDID      : 'asdfaasfa42432asdf'
+                                  , recipient : $('#recipient').val() 
+                                  , message   : $('#message').val()} );
+      $("#history").append('<li> To: ' + $('#recipient').val() + ' Message: ' + $('#message').val() + '</li>')
+      $('#recipient').val('');
+      $('#message').val('');
+      e.preventDefault();
+    });
+  });
+
+div#waiting Waiting for phone to arrive
+
+ul#history
+
+form#send-form
+  label Message
+    input(type='text', id='message')
+  label Phone Number
+    input(type='text', id='recipient')
+  input(type='submit', value='Send')
